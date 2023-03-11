@@ -42,14 +42,14 @@ npm start
   app.js
 
 ```js
-const swaggerUI = require('swagger-ui-express');
-const YAML = require('yamljs');
-const swaggerDocument = YAML.load('./swagger.yaml');
+const swaggerUI = require('swagger-ui-express')
+const YAML = require('yamljs')
+const swaggerDocument = YAML.load('./swagger.yaml')
 
 app.get('/', (req, res) => {
-  res.send('<h1>Jobs API</h1><a href="/api-docs">Documentation</a>');
-});
-app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+  res.send('<h1>Jobs API</h1><a href="/api-docs">Documentation</a>')
+})
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument))
 ```
 
 #### Remove API Limiter
@@ -59,15 +59,15 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 app.js
 
 ```js
-const rateLimiter = require('express-rate-limit');
+const rateLimiter = require('express-rate-limit')
 
-app.set('trust proxy', 1);
+app.set('trust proxy', 1)
 app.use(
   rateLimiter({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 requests per windowMs
   })
-);
+)
 ```
 
 #### Remove CORS
@@ -76,8 +76,8 @@ app.use(
 - remove these lines of code
 
 ```js
-const cors = require('cors');
-app.use(cors());
+const cors = require('cors')
+app.use(cors())
 ```
 
 #### Package.json
@@ -114,7 +114,7 @@ utils/axios.js
 ```js
 const customFetch = axios.create({
   baseURL: '/api/v1',
-});
+})
 ```
 
 - notice the build folder (production ready application)
@@ -131,31 +131,31 @@ const customFetch = axios.create({
 app.js
 
 ```js
-const path = require('path');
+const path = require('path')
 
-app.use(express.static(path.resolve(__dirname, './client/build')));
+app.use(express.static(path.resolve(__dirname, './client/build')))
 
 // place as first middleware
-app.use(express.json());
-app.use(helmet());
-app.use(cors());
-app.use(xss());
+app.use(express.json())
+app.use(helmet())
+app.use(cors())
+app.use(xss())
 ```
 
 - serve index.html for all routes (apart from API)
 - front-end routes pick's it up from there
 
 ```js
-app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/jobs', authenticateUser, jobsRouter);
+app.use('/api/v1/auth', authRouter)
+app.use('/api/v1/jobs', authenticateUser, jobsRouter)
 
 // serve index.html
 app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, './client/build', 'index.html'));
-});
+  res.sendFile(path.resolve(__dirname, './client/build', 'index.html'))
+})
 
-app.use(notFoundMiddleware);
-app.use(errorHandlerMiddleware);
+app.use(notFoundMiddleware)
+app.use(errorHandlerMiddleware)
 ```
 
 - navigate to localhost:5000
@@ -199,7 +199,7 @@ res.status(StatusCodes.CREATED).json({
     name: user.name,
     token,
   },
-});
+})
 ```
 
 - Login and Register Works Now :):):)
@@ -239,15 +239,15 @@ res.status(StatusCodes.CREATED).json({
 routes/auth.js
 
 ```js
-const express = require('express');
-const router = express.Router();
-const authenticateUser = require('../middleware/authentication');
-const { register, login, updateUser } = require('../controllers/auth');
-router.post('/register', register);
-router.post('/login', login);
-router.patch('/updateUser', authenticateUser, updateUser);
+const express = require('express')
+const router = express.Router()
+const authenticateUser = require('../middleware/authentication')
+const { register, login, updateUser } = require('../controllers/auth')
+router.post('/register', register)
+router.post('/login', login)
+router.patch('/updateUser', authenticateUser, updateUser)
 
-module.exports = router;
+module.exports = router
 ```
 
 - create updateUser controller
@@ -257,9 +257,9 @@ controllers/auth.js
 
 ```js
 const updateUser = async (req, res) => {
-  console.log(req.user);
-  console.log(req.body);
-};
+  console.log(req.user)
+  console.log(req.body)
+}
 ```
 
 - complete updateUser
@@ -268,20 +268,20 @@ controllers/auth.js
 
 ```js
 const updateUser = async (req, res) => {
-  const { email, name, lastName, location } = req.body;
+  const { email, name, lastName, location } = req.body
   if (!email || !name || !lastName || !location) {
-    throw new BadRequestError('Please provide all values');
+    throw new BadRequestError('Please provide all values')
   }
-  const user = await User.findOne({ _id: req.user.userId });
+  const user = await User.findOne({ _id: req.user.userId })
 
-  user.email = email;
-  user.name = name;
-  user.lastName = lastName;
-  user.location = location;
+  user.email = email
+  user.name = name
+  user.lastName = lastName
+  user.location = location
 
-  await user.save();
+  await user.save()
 
-  const token = user.createJWT();
+  const token = user.createJWT()
 
   res.status(StatusCodes.OK).json({
     user: {
@@ -291,8 +291,8 @@ const updateUser = async (req, res) => {
       name: user.name,
       token,
     },
-  });
-};
+  })
+}
 ```
 
 - Why New Token?
@@ -303,10 +303,10 @@ const updateUser = async (req, res) => {
 
 ```js
 UserSchema.pre('save', async function () {
-  if (!this.isModified('password')) return;
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
+  if (!this.isModified('password')) return
+  const salt = await bcrypt.genSalt(10)
+  this.password = await bcrypt.hash(this.password, salt)
+})
 ```
 
 #### Modify Job Model
@@ -343,27 +343,27 @@ jobType: {
 populate.js
 
 ```js
-require('dotenv').config();
+require('dotenv').config()
 
-const mockData = require('./mock-data.json');
+const mockData = require('./mock-data.json')
 
-const Job = require('./models/Job');
-const connectDB = require('./db/connect');
+const Job = require('./models/Job')
+const connectDB = require('./db/connect')
 
 const start = async () => {
   try {
-    await connectDB(process.env.MONGO_URI);
+    await connectDB(process.env.MONGO_URI)
 
-    await Job.create(mockData);
-    console.log('Success!!!');
-    process.exit(0);
+    await Job.create(mockData)
+    console.log('Success!!!')
+    process.exit(0)
   } catch (error) {
-    console.log(error);
-    process.exit(1);
+    console.log(error)
+    process.exit(1)
   }
-};
+}
 
-start();
+start()
 ```
 
 #### Modify Get All Jobs
@@ -374,60 +374,60 @@ controllers/jobs.js
 
 ```js
 const getAllJobs = async (req, res) => {
-  const { search, status, jobType, sort } = req.query;
+  const { search, status, jobType, sort } = req.query
 
   // protected route
   const queryObject = {
     createdBy: req.user.userId,
-  };
+  }
 
   if (search) {
-    queryObject.position = { $regex: search, $options: 'i' };
+    queryObject.position = { $regex: search, $options: 'i' }
   }
   // add stuff based on condition
 
   if (status && status !== 'all') {
-    queryObject.status = status;
+    queryObject.status = status
   }
   if (jobType && jobType !== 'all') {
-    queryObject.jobType = jobType;
+    queryObject.jobType = jobType
   }
 
   // NO AWAIT
 
-  let result = Job.find(queryObject);
+  let result = Job.find(queryObject)
 
   // chain sort conditions
 
   if (sort === 'latest') {
-    result = result.sort('-createdAt');
+    result = result.sort('-createdAt')
   }
   if (sort === 'oldest') {
-    result = result.sort('createdAt');
+    result = result.sort('createdAt')
   }
   if (sort === 'a-z') {
-    result = result.sort('position');
+    result = result.sort('position')
   }
   if (sort === 'z-a') {
-    result = result.sort('-position');
+    result = result.sort('-position')
   }
 
   //
 
   // setup pagination
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
+  const page = Number(req.query.page) || 1
+  const limit = Number(req.query.limit) || 10
+  const skip = (page - 1) * limit
 
-  result = result.skip(skip).limit(limit);
+  result = result.skip(skip).limit(limit)
 
-  const jobs = await result;
+  const jobs = await result
 
-  const totalJobs = await Job.countDocuments(queryObject);
-  const numOfPages = Math.ceil(totalJobs / limit);
+  const totalJobs = await Job.countDocuments(queryObject)
+  const numOfPages = Math.ceil(totalJobs / limit)
 
-  res.status(StatusCodes.OK).json({ jobs, totalJobs, numOfPages });
-};
+  res.status(StatusCodes.OK).json({ jobs, totalJobs, numOfPages })
+}
 ```
 
 #### Make Test User Read-Only
@@ -435,9 +435,9 @@ const getAllJobs = async (req, res) => {
 middleware/authentication.js
 
 ```js
-const payload = jwt.verify(token, process.env.JWT_SECRET);
-const testUser = payload.userId === '62eff8bcdb9af70b4155349d';
-req.user = { userId: payload.userId, testUser };
+const payload = jwt.verify(token, process.env.JWT_SECRET)
+const testUser = payload.userId === '62eff8bcdb9af70b4155349d'
+req.user = { userId: payload.userId, testUser }
 ```
 
 - create testingUser in middleware
@@ -445,32 +445,32 @@ req.user = { userId: payload.userId, testUser };
 middleware/testUser
 
 ```js
-const { BadRequestError } = require('../errors');
+const { BadRequestError } = require('../errors')
 
 const testUser = (req, res, next) => {
   if (req.user.testUser) {
-    throw new BadRequestError('Test User. Read Only!');
+    throw new BadRequestError('Test User. Read Only!')
   }
-  next();
-};
+  next()
+}
 
-module.exports = testUser;
+module.exports = testUser
 ```
 
 - add to auth routes (updateUser)
 
 ```js
-const express = require('express');
-const router = express.Router();
-const authenticateUser = require('../middleware/authentication');
-const testUser = require('../middleware/testUser');
-const { register, login, updateUser } = require('../controllers/auth');
+const express = require('express')
+const router = express.Router()
+const authenticateUser = require('../middleware/authentication')
+const testUser = require('../middleware/testUser')
+const { register, login, updateUser } = require('../controllers/auth')
 
-router.post('/register', register);
-router.post('/login', login);
-router.patch('/updateUser', authenticateUser, testUser, updateUser);
+router.post('/register', register)
+router.post('/login', login)
+router.patch('/updateUser', authenticateUser, testUser, updateUser)
 
-module.exports = router;
+module.exports = router
 ```
 
 - add to job routes (createJob, updateJob, deleteJob)
@@ -478,9 +478,9 @@ module.exports = router;
 routes/jobs.js
 
 ```js
-const express = require('express');
+const express = require('express')
 
-const router = express.Router();
+const router = express.Router()
 const {
   createJob,
   deleteJob,
@@ -488,18 +488,18 @@ const {
   updateJob,
   getJob,
   showStats,
-} = require('../controllers/jobs');
-const testUser = require('../middleware/testUser');
+} = require('../controllers/jobs')
+const testUser = require('../middleware/testUser')
 
-router.route('/').post(testUser, createJob).get(getAllJobs);
-router.route('/stats').get(showStats);
+router.route('/').post(testUser, createJob).get(getAllJobs)
+router.route('/stats').get(showStats)
 router
   .route('/:id')
   .get(getJob)
   .delete(testUser, deleteJob)
-  .patch(testUser, updateJob);
+  .patch(testUser, updateJob)
 
-module.exports = router;
+module.exports = router
 ```
 
 #### API Limiter
@@ -507,34 +507,34 @@ module.exports = router;
 routes/auth.js
 
 ```js
-const express = require('express');
-const router = express.Router();
-const authenticateUser = require('../middleware/authentication');
-const testUser = require('../middleware/testUser');
-const { register, login, updateUser } = require('../controllers/auth');
+const express = require('express')
+const router = express.Router()
+const authenticateUser = require('../middleware/authentication')
+const testUser = require('../middleware/testUser')
+const { register, login, updateUser } = require('../controllers/auth')
 
-const rateLimiter = require('express-rate-limit');
+const rateLimiter = require('express-rate-limit')
 const apiLimiter = rateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10,
   message: {
     msg: 'Too many requests from this IP, please try again after 15 minutes',
   },
-});
+})
 
-router.post('/register', apiLimiter, register);
-router.post('/login', apiLimiter, login);
-router.patch('/updateUser', authenticateUser, testUser, updateUser);
+router.post('/register', apiLimiter, register)
+router.post('/login', apiLimiter, login)
+router.patch('/updateUser', authenticateUser, testUser, updateUser)
 
-module.exports = router;
+module.exports = router
 ```
 
 app.js
 
 ```js
-app.set('trust proxy', 1);
+app.set('trust proxy', 1)
 
-app.use(express.static(path.resolve(__dirname, './client/build')));
+app.use(express.static(path.resolve(__dirname, './client/build')))
 ```
 
 #### Setup Stats Route
@@ -543,10 +543,8 @@ controllers/jobs
 
 ```js
 const showStats = (req, res) => {
-  res
-    .status(StatusCodes.OK)
-    .json({ defaultStats: {}, monthlyApplications: [] });
-};
+  res.status(StatusCodes.OK).json({ defaultStats: {}, monthlyApplications: [] })
+}
 
 module.exports = {
   createJob,
@@ -555,15 +553,15 @@ module.exports = {
   updateJob,
   getJob,
   showStats,
-};
+}
 ```
 
 routes/jobs.js
 
 ```js
-const express = require('express');
+const express = require('express')
 
-const router = express.Router();
+const router = express.Router()
 const {
   createJob,
   deleteJob,
@@ -571,13 +569,13 @@ const {
   updateJob,
   getJob,
   showStats,
-} = require('../controllers/jobs');
+} = require('../controllers/jobs')
 
-router.route('/').post(createJob).get(getAllJobs);
-router.route('/stats').get(showStats);
-router.route('/:id').get(getJob).delete(deleteJob).patch(updateJob);
+router.route('/').post(createJob).get(getAllJobs)
+router.route('/stats').get(showStats)
+router.route('/:id').get(getJob).delete(deleteJob).patch(updateJob)
 
-module.exports = router;
+module.exports = router
 ```
 
 - npm install moment
@@ -586,8 +584,8 @@ module.exports = router;
 controllers/jobs
 
 ```js
-const mongoose = require('mongoose');
-const moment = require('moment');
+const mongoose = require('mongoose')
+const moment = require('moment')
 ```
 
 - [Javascript Nuggets - Reduce Basics](https://youtu.be/3WkW9nrS2mw)
@@ -600,19 +598,19 @@ const showStats = async (req, res) => {
   let stats = await Job.aggregate([
     { $match: { createdBy: mongoose.Types.ObjectId(req.user.userId) } },
     { $group: { _id: '$status', count: { $sum: 1 } } },
-  ]);
+  ])
 
   stats = stats.reduce((acc, curr) => {
-    const { _id: title, count } = curr;
-    acc[title] = count;
-    return acc;
-  }, {});
+    const { _id: title, count } = curr
+    acc[title] = count
+    return acc
+  }, {})
 
   const defaultStats = {
     pending: stats.pending || 0,
     interview: stats.interview || 0,
     declined: stats.declined || 0,
-  };
+  }
 
   let monthlyApplications = await Job.aggregate([
     { $match: { createdBy: mongoose.Types.ObjectId(req.user.userId) } },
@@ -624,23 +622,23 @@ const showStats = async (req, res) => {
     },
     { $sort: { '_id.year': -1, '_id.month': -1 } },
     { $limit: 6 },
-  ]);
+  ])
   monthlyApplications = monthlyApplications
     .map((item) => {
       const {
         _id: { year, month },
         count,
-      } = item;
+      } = item
       const date = moment()
         .month(month - 1)
         .year(year)
-        .format('MMM Y');
-      return { date, count };
+        .format('MMM Y')
+      return { date, count }
     })
-    .reverse();
+    .reverse()
 
-  res.status(StatusCodes.OK).json({ defaultStats, monthlyApplications });
-};
+  res.status(StatusCodes.OK).json({ defaultStats, monthlyApplications })
+}
 ```
 
 #### Deploy
