@@ -20,7 +20,11 @@ const errorHandlerMiddleware = require('./middleware/error-handler')
 app.set('trust proxy', 1)
 app.use(express.json())
 app.use(helmet())
-app.use(cors())
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+  })
+)
 app.use(xss())
 
 // routes
