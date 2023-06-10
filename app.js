@@ -22,8 +22,8 @@ app.use(express.json())
 app.use(helmet())
 app.use(
   cors({
-    // origin: 'https://phoenix-jobster.netlify.app',
-    origin: 'http://localhost:3000',
+    origin: 'https://phoenix-jobster.netlify.app',
+    // origin: 'http://localhost:3000',
   })
 )
 app.use(xss())
