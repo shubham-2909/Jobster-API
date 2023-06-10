@@ -22,7 +22,7 @@ app.use(express.json())
 app.use(helmet())
 app.use(
   cors({
-    origin: 'https://phoenix-jobster.netlify.app/register',
+    origin: 'https://phoenix-jobster.netlify.app',
   })
 )
 app.use(xss())
